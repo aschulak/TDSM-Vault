@@ -3,77 +3,38 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
 using System.IO;
+using System.Text.RegularExpressions;
 using Terraria_Server;
 using Envoy.TDSM_Passport;
 
 namespace Envoy.TDSM_Vault
 {
-    public class SampleObject : VaultObject
+    public class VaultFactory
     {
-        public string foo = "bar";
+        private static Vault vault;
 
-        public SampleObject(String pluginName) : base(pluginName)
+        // get the shared singleton instance of Vault
+        public static Vault getVault()
         {
-             
-        }
-
-        public SampleObject() : base("SamplePlugin")
-        {
-             
-        }
-
-        public override string toXml ()
-        {
-            return foo;  
-        }
-     
-        public override void fromXml (string xml)
-        {
-            this.foo = xml;
+            if (vault == null) {
+                vault = new Vault();
+            }
+            return vault;
         }
     }
- 
+
     public class Vault
     {
         private string PLUGIN_FOLDER = Statics.PluginPath + Path.DirectorySeparatorChar + "Vault";
-        private const string TABLE_NAME = "vault";
         private string databaseFileName;
         private SQLiteDatabase database;
 
-        static void Main (string[] args)
-        {
-            System.Console.WriteLine("start");
-
-            Vault vault = new Vault();
-            SampleObject o = new SampleObject();
-            vault.store(o);
-
-            o.foo = "pepe";
-            vault.store(o);         
-
-            SampleObject vo = new SampleObject();
-            vault.getVaultObject(vo);           
-            System.Console.WriteLine(vo.getId());
-            System.Console.WriteLine(vo.getPluginName());
-            System.Console.WriteLine(vo.getObjectName());
-            System.Console.WriteLine(vo.foo);           
-
-            PassportManager pm = PassportManagerFactory.getPassportManager();
-
-
-            System.Console.WriteLine("done");
-        }
-
-        public Vault()
-        {
-            databaseFileName = PLUGIN_FOLDER + "/vault.db";
-            database = new SQLiteDatabase(databaseFileName);
-            setup();            
-        }
-     
-        public void store (VaultObject vaultObject)
+        public void store(VaultObject vaultObject)
         {
             try {
+                String tableName = tableNameFromPluginName(vaultObject.getPluginName());
+                createTable(tableName);
+
                 Dictionary<string, string > dataDictionary = vaultObject.getDataDictionary();
                 int id = this.getVaultObjectId(vaultObject);
                 if (id == -1) {
@@ -81,29 +42,31 @@ namespace Envoy.TDSM_Vault
                     DateTime now = System.DateTime.Now;
                     dataDictionary["created"] = now.ToString();
                     dataDictionary["updated"] = now.ToString();
-                    database.Insert(TABLE_NAME, dataDictionary);
+                    System.Console.WriteLine(dataDictionary["xml"]);
+                    database.Insert(tableName, dataDictionary);
                 } else {
                     System.Console.WriteLine("update");
                     DateTime now = System.DateTime.Now;
                     dataDictionary["updated"] = now.ToString();
-                    String idString = TABLE_NAME + ".id = " + id;
-                    database.Update(TABLE_NAME, dataDictionary, idString);
+                    String idString = tableName + ".id = " + id;
+                    System.Console.WriteLine(dataDictionary["xml"]);
+                    database.Update(tableName, dataDictionary, idString);
                 }
-                vaultObject.setId(this.getVaultObjectId(vaultObject));                             
+                vaultObject.setId(this.getVaultObjectId(vaultObject));
             } catch (Exception e) {
-                System.Console.WriteLine(e.Message);    
+                System.Console.WriteLine(e.Message);
             } 
          
         }
 
-        public int getVaultObjectId (VaultObject vaultObject)
+        public int getVaultObjectId(VaultObject vaultObject)
         {
             int id = -1;
             try {
+                String tableName = tableNameFromPluginName(vaultObject.getPluginName());
                 String query = "select id \"id\"";
-                query += " from " + TABLE_NAME;
-                query += " where pluginName = \"" + vaultObject.getPluginName() + "\"";
-                query += " and objectName = \"" + vaultObject.getObjectName() + "\"";
+                query += " from " + tableName;
+                query += " where objectName = \"" + vaultObject.getObjectName() + "\"";
 
                 // use passport info if present
                 if (vaultObject.getPassport() != null) {
@@ -114,7 +77,7 @@ namespace Envoy.TDSM_Vault
              
                 DataTable results = database.GetDataTable(query);
              
-                DataRow row = results.Rows[0];              
+                DataRow row = results.Rows[0];
                 id = Int32.Parse(row["id"].ToString());
             } catch (Exception e) {
                 id = -1;
@@ -122,78 +85,118 @@ namespace Envoy.TDSM_Vault
             return id;
         }
      
-        public void getVaultObject (VaultObject vaultObject)
+        public void getVaultObject(VaultObject vaultObject)
         {
-         
-            String query = "select id \"id\", pluginName \"pluginName\",";
-            query += "objectName \"objectName\", xml \"xml\"";
-            query += " from " + TABLE_NAME;
-            query += " where pluginName = \"" + vaultObject.getPluginName() + "\"";
-            query += " and objectName = \"" + vaultObject.getObjectName() + "\"";
+            try {
+                String tableName = tableNameFromPluginName(vaultObject.getPluginName());
+                String query = "select id \"id\",";
+                query += "objectName \"objectName\", xml \"xml\"";
+                query += " from " + tableName;
+                query += " where objectName = \"" + vaultObject.getObjectName() + "\"";
+    
+                // use passport info if present
+                if (vaultObject.getPassport() != null) {
+                    String username = vaultObject.getPassport().getUser().username;
+                    query += " and passportUsername = \"" + username + "\"";
+                }
 
-            // use passport info if present
-            if (vaultObject.getPassport() != null) {
-                String username = vaultObject.getPassport().getUser().username;
-                query += " and passportUsername = \"" + username + "\"";
+                DataTable results = database.GetDataTable(query);
+
+                // there should only ever be one copy of an object in the database
+                DataRow row = results.Rows[0];
+                vaultObject.fromDataRow(row);
+            } catch (Exception e) {
+                throw new VaultObjectNotFoundException();
+            }
+        }
+
+        //
+        // PRIVATE and INTERNAL
+        //
+
+        internal Vault()
+        {
+            databaseFileName = PLUGIN_FOLDER + Path.DirectorySeparatorChar + "vault.db";
+            System.Console.WriteLine("database file location:" + databaseFileName);
+
+            Dictionary<string, string > options = new Dictionary<string, string>();
+            options["Data Source"] = databaseFileName;
+            options["New"] = "True";
+            database = new SQLiteDatabase(options);
+
+            setup();            
+        }
+
+        private String tableNameFromPluginName(String pluginName)
+        {
+            String tableName = Regex.Replace(pluginName, @"[^\w\.-]", "");
+            tableName = tableName.ToLower();
+            if (tableName.Length > 16) {
+                tableName = tableName.Substring(0, 15);
             }
 
-            System.Console.WriteLine(query);    
-         
-            DataTable results = database.GetDataTable(query);
-         
-            DataRow row = results.Rows[0];              
-            vaultObject.fromDataRow(row);
+            return tableName;
         }
-     
-        private SQLiteConnection getConnection ()
+
+        private SQLiteConnection getConnection()
         {
-            SQLiteConnection con = new SQLiteConnection("Data Source=" + databaseFileName);
+            SQLiteConnection con = new SQLiteConnection("Data Source=" + databaseFileName + ";New=True;");
             return con;
         }
 
-        private void setup ()
+        private void createTable(String tableName)
         {
             SQLiteConnection con = null;
+            try {
+                // create table if need be
+                con = this.getConnection();
+                con.Open();
+                SQLiteCommand command = con.CreateCommand();
+
+                string createTable = "CREATE TABLE " + tableName + "(id INTEGER PRIMARY KEY,";
+                createTable += " objectName TEXT NOT NULL, passportUsername TEXT,";
+                createTable += " xml TEXT, created TEXT, updated TEXT);";
+                command.CommandText = createTable;
+                command.ExecuteNonQuery();
+            } catch (Exception e) {
+                
+            } finally {
+                con.Close();
+            }
+        }
+
+        private void setup()
+        {
             try {
                 // create folder
                 createDirectory(PLUGIN_FOLDER);
 
                 // setup any properties
                 setupProperties();
-
-                // create table if need be
-                System.Console.WriteLine("Creating table");
-                con = this.getConnection();
-                con.Open();         
-                SQLiteCommand command = con.CreateCommand();
-             
-                string createTable = "CREATE TABLE " + TABLE_NAME + "(id INTEGER PRIMARY KEY,";
-                createTable += " pluginName TEXT NOT NULL, objectName TEXT NOT NULL, passportUsername TEXT,";
-                createTable += " xml TEXT, created TEXT, updated TEXT);";
-                command.CommandText = createTable;
-                command.ExecuteNonQuery();
             } catch (Exception e) {
                 System.Console.WriteLine("table exists");
-            } finally {              
-                con.Close();    
             }
         }
 
-        private void createDirectory (string dirPath)
+        private void createDirectory(string dirPath)
         {
             if (!Directory.Exists(dirPath)) {
                 Directory.CreateDirectory(dirPath);
             }
         }
 
-        private void setupProperties ()
+        private void setupProperties()
         {
-            //properties = new Properties(PLUGIN_FOLDER + Path.DirectorySeparatorChar + "vault.properties");
-            //properties.Load();
-            //properties.pushData(); //Creates default values if needed.
-            //properties.Save();
         }
 
     }
- 
+
+    //
+    // EXCEPTIONS
+    //
+
+    public class VaultObjectNotFoundException : Exception
+    {
+    }
+
 }

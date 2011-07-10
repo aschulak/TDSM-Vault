@@ -21,27 +21,27 @@ namespace Envoy.TDSM_Vault
             this.passport = null;
         }
 
-        public string getObjectName ()
+        public string getObjectName()
         {
             return objectName;
         }
 
-        public string getPluginName ()
+        public string getPluginName()
         {
             return pluginName;
         }
 
-        public int getId ()
+        public int getId()
         {
             return id;
         }
 
-        public Passport getPassport ()
+        public Passport getPassport()
         {
             return passport;
         }
 
-        public void setPassport (Passport passport)
+        public void setPassport(Passport passport)
         {
             this.passport = passport;
         }
@@ -50,12 +50,12 @@ namespace Envoy.TDSM_Vault
         // API
         //
      
-        public virtual string toXml ()
+        public virtual string toXml()
         {
             throw new NotImplementedException();         
         }
      
-        public virtual void fromXml (string xml)
+        public virtual void fromXml(string xml)
         {
             throw new NotImplementedException();
         }
@@ -70,25 +70,25 @@ namespace Envoy.TDSM_Vault
          
         }
 
-        internal void setId (int id)
+        internal void setId(int id)
         {
             this.id = id;    
         }
 
-        internal Dictionary<string, string> getDataDictionary ()
+        internal Dictionary<string, string> getDataDictionary()
         {
             Dictionary<string, string > dataDictionary = new Dictionary<string, string>();           
-            dataDictionary["pluginName"] = getPluginName();
             dataDictionary["objectName"] = getObjectName();
+            if (passport != null) {
+                dataDictionary["passportUsername"] = passport.getUser().username;
+            }
             dataDictionary["xml"] = toXml();
             return dataDictionary;
         }
 
-        internal void fromDataRow (DataRow dataRow)
+        internal void fromDataRow(DataRow dataRow)
         {
             id = Int32.Parse(dataRow["id"].ToString());
-            pluginName = dataRow["pluginName"].ToString();
-            objectName = dataRow["objectName"].ToString();
             string xml = dataRow["xml"].ToString();
             System.Console.WriteLine("xml:" + xml);
             fromXml(xml);
