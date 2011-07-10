@@ -115,7 +115,7 @@ namespace Envoy.TDSM_Vault
         internal Vault()
         {
             databaseFileName = PLUGIN_FOLDER + Path.DirectorySeparatorChar + "vault.db";
-            System.Console.WriteLine("database file location:" + databaseFileName);
+            debug("database file location:" + databaseFileName);
 
             Dictionary<string, string > options = new Dictionary<string, string>();
             options["Data Source"] = databaseFileName;
