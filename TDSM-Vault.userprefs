@@ -1,0 +1,20 @@
+﻿<Properties>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="TDSM-Vault\Vault.cs">
+    <Files>
+      <File FileName="TDSM-Vault\Properties.cs" Line="6" Column="27" />
+      <File FileName="TDSM-Vault\Vault.cs" Line="15" Column="63" />
+      <File FileName="TDSM-Vault\VaultObject.cs" Line="83" Column="45" />
+      <File FileName="TDSM-Vault\SQLiteDatabase.cs" Line="3" Column="1" />
+      <File FileName="TDSM-Vault\AssemblyInfo.cs" Line="7" Column="27" />
+      <File FileName="TDSM-Vault\PropertiesFile.cs" Line="6" Column="27" />
+      <File FileName="..\TDSM-Passport\TDSM-Passport\PassportPlugin.cs" Line="3" Column="1" />
+      <File FileName="..\TDSM-Passport\TDSM-Passport\Passport.cs" Line="3" Column="1" />
+      <File FileName="..\TDSM-Passport\TDSM-Passport\User.cs" Line="1" Column="1" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+</Properties>
