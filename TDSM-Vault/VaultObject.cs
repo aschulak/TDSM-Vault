@@ -90,7 +90,6 @@ namespace Envoy.TDSM_Vault
         {
             id = Int32.Parse(dataRow["id"].ToString());
             string xml = dataRow["xml"].ToString();
-            System.Console.WriteLine("xml:" + xml);
             fromXml(xml);
         }
 

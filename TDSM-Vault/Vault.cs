@@ -42,19 +42,17 @@ namespace Envoy.TDSM_Vault
                     DateTime now = System.DateTime.Now;
                     dataDictionary["created"] = now.ToString();
                     dataDictionary["updated"] = now.ToString();
-                    System.Console.WriteLine(dataDictionary["xml"]);
                     database.Insert(tableName, dataDictionary);
                 } else {
                     System.Console.WriteLine("update");
                     DateTime now = System.DateTime.Now;
                     dataDictionary["updated"] = now.ToString();
                     String idString = tableName + ".id = " + id;
-                    System.Console.WriteLine(dataDictionary["xml"]);
                     database.Update(tableName, dataDictionary, idString);
                 }
                 vaultObject.setId(this.getVaultObjectId(vaultObject));
             } catch (Exception e) {
-                System.Console.WriteLine(e.Message);
+                log(e.Message);
             } 
          
         }
@@ -73,10 +71,10 @@ namespace Envoy.TDSM_Vault
                     String username = vaultObject.getPassport().getUser().username;
                     query += " and passportUsername = \"" + username + "\"";
                 }
-                System.Console.WriteLine(query);
-             
+                debug(query);
+
                 DataTable results = database.GetDataTable(query);
-             
+                // there should only ever be one copy of an object in the database
                 DataRow row = results.Rows[0];
                 id = Int32.Parse(row["id"].ToString());
             } catch (Exception e) {
@@ -99,9 +97,9 @@ namespace Envoy.TDSM_Vault
                     String username = vaultObject.getPassport().getUser().username;
                     query += " and passportUsername = \"" + username + "\"";
                 }
+                debug(query);
 
                 DataTable results = database.GetDataTable(query);
-
                 // there should only ever be one copy of an object in the database
                 DataRow row = results.Rows[0];
                 vaultObject.fromDataRow(row);
@@ -149,6 +147,7 @@ namespace Envoy.TDSM_Vault
             SQLiteConnection con = null;
             try {
                 // create table if need be
+                debug("creating table");
                 con = this.getConnection();
                 con.Open();
                 SQLiteCommand command = con.CreateCommand();
@@ -159,7 +158,7 @@ namespace Envoy.TDSM_Vault
                 command.CommandText = createTable;
                 command.ExecuteNonQuery();
             } catch (Exception e) {
-                
+                debug("table exists, skipped");
             } finally {
                 con.Close();
             }
@@ -167,15 +166,11 @@ namespace Envoy.TDSM_Vault
 
         private void setup()
         {
-            try {
-                // create folder
-                createDirectory(PLUGIN_FOLDER);
+            // create folder
+            createDirectory(PLUGIN_FOLDER);
 
-                // setup any properties
-                setupProperties();
-            } catch (Exception e) {
-                System.Console.WriteLine("table exists");
-            }
+            // setup any properties
+            setupProperties();
         }
 
         private void createDirectory(string dirPath)
@@ -187,6 +182,18 @@ namespace Envoy.TDSM_Vault
 
         private void setupProperties()
         {
+        }
+
+        private void debug(String message)
+        {
+            #if (DEBUG)
+            System.Console.WriteLine(message);
+            #endif
+        }
+
+        private void log(String message)
+        {
+            System.Console.WriteLine(message);
         }
 
     }

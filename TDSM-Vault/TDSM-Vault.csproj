@@ -9,7 +9,7 @@
     <OutputType>Library</OutputType>
     <RootNamespace>Envoy.TDSM_Vault</RootNamespace>
     <AssemblyName>Vault</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <newfilesearch>OnLoadAutoInsert</newfilesearch>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -41,7 +41,7 @@
     </Reference>
     <Reference Include="System.Data.SQLite, Version=1.0.74.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\sqlite\System.Data.SQLite.dll</HintPath>
+      <HintPath>..\..\sqlite3.5\System.Data.SQLite.dll</HintPath>
     </Reference>
     <Reference Include="System.Data">
     </Reference>

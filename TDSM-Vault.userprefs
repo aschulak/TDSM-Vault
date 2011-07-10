@@ -1,6 +1,6 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Release" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="TDSM-Vault\AssemblyInfo.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="TDSM-Vault\Vault.cs">
     <Files>
       <File FileName="..\TDSM-LastCommand\TDSM-LastCommand\LastCommandPlugin.cs" Line="38" Column="4" />
       <File FileName="..\lwc\Store.cs" Line="5" Column="2" />
@@ -8,8 +8,8 @@
       <File FileName="..\TDSM-Passport\TDSM-Passport\Passport.cs" Line="3" Column="1" />
       <File FileName="..\TDSM-Passport\TDSM-Passport\User.cs" Line="1" Column="1" />
       <File FileName="..\TDSM-Passport\TDSM-Passport\PassportManagerData.cs" Line="47" Column="32" />
-      <File FileName="TDSM-Vault\Vault.cs" Line="162" Column="17" />
-      <File FileName="TDSM-Vault\VaultObject.cs" Line="31" Column="31" />
+      <File FileName="TDSM-Vault\Vault.cs" Line="55" Column="32" />
+      <File FileName="TDSM-Vault\VaultObject.cs" Line="92" Column="52" />
       <File FileName="TDSM-Vault\SQLiteDatabase.cs" Line="99" Column="36" />
       <File FileName="TDSM-Vault\AssemblyInfo.cs" Line="1" Column="1" />
       <File FileName="..\TDSM-WarpDrive\TDSM-WarpDrive\WarpList.cs" Line="16" Column="90" />
