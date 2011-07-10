@@ -8,7 +8,7 @@
     <ProjectGuid>{80B1A751-0E12-43A1-AF05-E1AC30ED0D06}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <RootNamespace>Envoy.TDSM_Vault</RootNamespace>
-    <AssemblyName>TDSM-Vault</AssemblyName>
+    <AssemblyName>Vault</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <StartupObject>Envoy.TDSM_Vault.Vault</StartupObject>
     <newfilesearch>OnLoadAutoInsert</newfilesearch>
