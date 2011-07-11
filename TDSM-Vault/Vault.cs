@@ -71,7 +71,7 @@ namespace Envoy.TDSM_Vault
                     String username = vaultObject.getPassport().getUser().username;
                     query += " and passportUsername = \"" + username + "\"";
                 } else {
-                    query += " and passportUsername = \"\"";
+                    query += " and passportUsername ISNULL";
                 }
                 debug(query);
 
@@ -99,7 +99,7 @@ namespace Envoy.TDSM_Vault
                     String username = vaultObject.getPassport().getUser().username;
                     query += " and passportUsername = \"" + username + "\"";
                 } else {
-                    query += " and passportUsername = \"\"";
+                    query += " and passportUsername ISNULL";
                 }
 
                 debug(query);
@@ -158,7 +158,7 @@ namespace Envoy.TDSM_Vault
                 SQLiteCommand command = con.CreateCommand();
 
                 string createTable = "CREATE TABLE " + tableName + "(id INTEGER PRIMARY KEY,";
-                createTable += " objectName TEXT NOT NULL, passportUsername TEXT,";
+                createTable += " objectName TEXT NOT NULL, passportUsername TEXT DEFAULT NULL,";
                 createTable += " xml TEXT, created TEXT, updated TEXT);";
                 command.CommandText = createTable;
                 command.ExecuteNonQuery();
