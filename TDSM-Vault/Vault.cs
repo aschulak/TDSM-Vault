@@ -70,6 +70,8 @@ namespace Envoy.TDSM_Vault
                 if (vaultObject.getPassport() != null) {
                     String username = vaultObject.getPassport().getUser().username;
                     query += " and passportUsername = \"" + username + "\"";
+                } else {
+                    query += " and passportUsername = \"\"";
                 }
                 debug(query);
 
@@ -96,7 +98,10 @@ namespace Envoy.TDSM_Vault
                 if (vaultObject.getPassport() != null) {
                     String username = vaultObject.getPassport().getUser().username;
                     query += " and passportUsername = \"" + username + "\"";
+                } else {
+                    query += " and passportUsername = \"\"";
                 }
+
                 debug(query);
 
                 DataTable results = database.GetDataTable(query);
