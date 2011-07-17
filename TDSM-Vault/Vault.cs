@@ -29,6 +29,10 @@ namespace Envoy.TDSM_Vault
         private string databaseFileName;
         private SQLiteDatabase database;
 
+        //
+        // API
+        //
+        
         public void store(VaultObject vaultObject)
         {
             try {
